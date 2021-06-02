@@ -153,7 +153,11 @@ def main():
         f_train_uncloaked = np.delete(f_uncloaked, test_idx, axis=0)
         f_test_uncloaked = f_uncloaked[test_idx]
 
-        clf1 = KNeighborsClassifier(n_neighbors=1, n_jobs=-1)
+        if args.classifier == "linear":
+            clf1 = LogisticRegression(random_state=0, n_jobs=-1, warm_start=False)
+            clf1 = make_pipeline(StandardScaler(), clf1)
+        else:
+            clf1 = KNeighborsClassifier(n_neighbors=1, n_jobs=-1)
 
         idx_train = np.asarray([y != name for y in Y_train_all])
         idx_test = np.asarray([y != name for y in Y_test_all])
@@ -176,6 +180,8 @@ def parse_arguments(argv):
 
     parser.add_argument('--model', type=str,
                         help='the feature extractor', default='magface')
+    parser.add_argument('--classifier', type=str,
+                        help='the classifier', default='NN')
 
     parser.add_argument('--names-list', nargs='+', default=[], help="names of attacking users")
     parser.add_argument('--facescrub-dir', help='path to unprotected facescrub directory', default="facescrub/download/")

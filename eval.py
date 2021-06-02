@@ -111,17 +111,6 @@ def main():
         print(directory)
         image_paths = glob.glob(directory + "*.png") + glob.glob(directory + "*.jpg")
         
-        """
-        if args.attack == "fawkes" or args.attack == "fawkesv01":
-            cloak_file_name = "high_cloaked"
-            all_pathes_uncloaked = sorted([path for path in image_paths if "cloaked" not in path.split("/")[-1]])
-            all_pathes_cloaked = sorted([path for path in image_paths if cloak_file_name in path.split("/")[-1]])    
-        else:
-            cloak_file_name = "attacked"
-            all_pathes_uncloaked = sorted([path for path in image_paths if "small" in path.split("/")[-1]])
-            all_pathes_cloaked = sorted([path for path in image_paths if cloak_file_name in path.split("/")[-1]])    
-        """
-
         all_pathes_uncloaked = sorted([path for path in image_paths if args.unprotected_file_match in path.split("/")[-1]])
         all_pathes_cloaked = sorted([path for path in image_paths if args.protected_file_match in path.split("/")[-1]])  
 
@@ -168,7 +157,7 @@ def parse_arguments(argv):
     parser.add_argument('--base_model', type=str,
                         help='the feature extractor', default='low_extract')
     parser.add_argument('--classifier', type=str,
-                        help='the classifier', default='linear')
+                        help='the classifier', default='NN')
     parser.add_argument('--robust-weights', type=str, 
                         help='robust weights', default=None)
     parser.add_argument('--names-list', nargs='+', default=[], help="names of attacking users")
