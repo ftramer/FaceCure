@@ -8,7 +8,6 @@ import random
 random.seed(10)
 
 import sys
-sys.path.append('/media/ssd1T/evani/fawkes')
 
 import keras
 import numpy as np
