@@ -50,7 +50,7 @@ We assume you have:
 - A directory with users protected by LowKey: `facescrub_lowkey_attack/download/`
 
 ### Baseline with NN classifier
-Train a nearest neighbor classifier on top of the Fawkesv03 feature extractor, with one attacking user.
+Train a nearest neighbor classifier on top of the Fawkesv0.3 feature extractor, with one attacking user.
 
 To evaluate Fawkes' attack:
 ```bash
@@ -69,7 +69,10 @@ Fawkes (baseline NN) | Lowkey (baseline NN)
 ```Protection rate: 0.97```|```Protection rate: 0.94```
 
 ### Oblivious NN classifier
-We can repeat the experiment using the feature extractor from MagFace or CLIP.
+We can repeat the experiment using the feature extractor from Fawkes v1.0, MagFace or CLIP.
+
+- For Fawkes v1.0:
+    - Put Fawkes v1.0 (and not Fawkes v0.3) on your PYTHONPATH
 
 - For MagFace:
     - Download MagFace: https://github.com/IrvingMeng/MagFace/
@@ -78,28 +81,38 @@ We can repeat the experiment using the feature extractor from MagFace or CLIP.
 - For CLIP:
     - Download CLIP: https://github.com/openai/CLIP
 
-Fawkes & MagFace:
+
+Fawkes attack & Fawkes v1.0 extractor:
+```bash
+python3 eval_oblivious.py --facescrub-dir facescrub/download/ --attack-dir facescrub_fawkes_attack/download/ --unprotected-file-match .jpg --protected-file-match high_cloaked.png --classifier  NN --names-list Adam_Sandler --model fawkesv10
+```
+
+Fawkes attack & MagFace extractor:
 ```bash
 python3 eval_oblivious.py --facescrub-dir facescrub/download/ --attack-dir facescrub_fawkes_attack/download/ --unprotected-file-match .jpg --protected-file-match high_cloaked.png --classifier  NN --names-list Adam_Sandler --model magface --resume path/to/magface_model.pth
 ```
 
-LowKey & MagFace:
+LowKey attack & MagFace extractor:
 ```bash
 python3 eval_oblivious.py --facescrub-dir facescrub/download/ --attack-dir facescrub_lowkey_attack/download/ --unprotected-file-match small.png --protected-file-match attacked.png --classifier  NN --names-list Adam_Sandler --model magface --resume path/to/magface_model.pth
 ```
 
-LowKey & CLIP: 
+LowKey attack & CLIP extractor: 
 ```bash
 python3 eval_oblivious.py --facescrub-dir facescrub/download/ --attack-dir facescrub_lowkey_attack/download/ --unprotected-file-match small.png --protected-file-match attacked.png --classifier  NN --names-list Adam_Sandler --model clip
 ```
 
-Fawkes & MagFace | Lowkey & MagFace | Lowkey & CLIP
------------------|------------------|--------------
-```Protection rate: 0.00```|```Protection rate: 1.00```|```Protection rate: 0.24```
+Results:
+
+Fawkes attack & Fawkes extractor | Fawkes attack & MagFace extractor | | LowKey attack & MagFace extractor | LowKey attack & CLIP extractor
+---------------------------------|----------------------------------|-|-----------------------------------|-------------------------------
+```Protection rate: 1.00```|```Protection rate: 0.00```| |```Protection rate: 1.00```|```Protection rate: 0.24```
 
 ### Adaptive NN classifier
 Same as for the baseline classifier above, but you can add the option `--robust-weights cp-robust-10.ckpt` to use a robustified feature extractor.
 This feature extractor was trained using the `train_robust_features.py` script, which finetunes a feature extractor on known attack pictures.
+
+Results:
 
 Fawkes (adaptive NN) | Lowkey (adaptive NN)
 ---------------------|---------------------
@@ -121,6 +134,8 @@ To evaluate LowKey's attack:
 python3 eval_e2e.py --gpu 0 --attack-dir facescrub_lowkey_attack/download/Adam_Sandler/face --facescrub-dir facescrub/download/ --unprotected-file-match small.png --protected-file-match attacked.png
 ```
 
+Results:
+
 Fawkes (baseline E2E) | Lowkey (baseline E2E)
 ----------------------|---------------------
 ```Protection rate: 0.88```|```Protection rate: 0.97```
@@ -138,6 +153,8 @@ To evaluate LowKey's attack:
 ```bash
 python3 eval_e2e.py --gpu 0 --attack-dir facescrub_lowkey_attack/download/Adam_Sandler/face --facescrub-dir facescrub/download/ --unprotected-file-match small.png --protected-file-     match attacked.png --robust --public-attack-dirs facescrub_fawkes_attack/download facescrub_lowkey_attack/download
 ```
+
+Results:
 
 Fawkes (adaptive E2E) | Lowkey (adaptive E2E)
 ----------------------|---------------------
