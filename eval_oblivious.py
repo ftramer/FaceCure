@@ -134,7 +134,6 @@ def main():
     for name in val_people:
         directory = f"{base_dir}/{name}"
         print(directory)
-        #image_paths = glob.glob(directory + "/face/*.png") + glob.glob(directory + "/face/*.jpg")
 
         filter_cloak = lambda x: args.protected_file_match in x
         filter_uncloak = lambda x: args.unprotected_file_match in x 

@@ -35,7 +35,7 @@ def select_samples(data_dir):
     return all_data_path
 
 # returns the name of the class from the face directory
-# e.g. if data_dir='../facescrub_all_cloaked_users/download/Portia_Doubleday/face/', returns 'Portia_Doubleday'
+# e.g. if data_dir='/facescrub/download/Portia_Doubleday/face/', returns 'Portia_Doubleday'
 def get_class(data_dir, face=True):
     folders_arr = data_dir.split('/')
     if not face:
@@ -87,6 +87,7 @@ class DataGenerator(object):
             train_path = [p for p in all_pathes if p not in test_path]
 
             if args.robust:
+                # UGLY: hardcoded filters for Fawkes v1.0, LowKey, Fawkes v0.3
                 dir1, dir2, dir3 = args.public_attack_dirs
                 p1 = glob.glob(os.path.join(dir1 + cur_class + "/face/", "*high_cloaked.png"))
                 p2 = glob.glob(os.path.join(dir2 + cur_class + "/face/", "*_attacked.png"))

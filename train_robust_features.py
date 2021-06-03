@@ -67,6 +67,7 @@ class DataGenerator(object):
                 print("IGNORING:", cur_data_dir)
                 continue
 
+            # UGLY: hardcoded filters for Fawkes v1.0, LowKey, Fawkes v0.3
             p1 = glob.glob(os.path.join(dir1 + cur_class + "/face/", "*high_cloaked.png"))
             p2 = glob.glob(os.path.join(dir2 + cur_class + "/face/", "*_attacked.png"))
             p3 = glob.glob(os.path.join(dir3 + cur_class + "/face/", "*high_cloaked.png"))
