@@ -1,13 +1,23 @@
 # FaceCure
 
-Oblivious and adaptive "defenses" against poisoning attacks on facial recognition systems.
+**Oblivious and adaptive "defenses" against poisoning attacks on facial recognition systems.**
 
+We consider three common facial recognition approaches: 
+- *NN:* 1-Nearest Neighbor on top of a feature extractor.
+- *Linear:* Linear fine-tuning on top of a frozen feature extractor for 10 epochs.
+- *End-to-end:* End-to-end fine-tuning of the feature extractor and linear classifier for 10 epochs.
 
-## Generate cloaks with Fawkes v1.0
+We evaluate the following defenses against the Fawkes and Lowkey attacks on facial recognition:
+- *Oblivious:* A model trainer waits for a new model to nullify the protection of previously collected pictures.
+- *Adaptive:* A model trainer trains a robust model that resists the perturbations of collected pictures.
 
-Download Fawkes from https://github.com/Shawn-Shan/fawkes
+We perform all of our experiments with the *FaceScrub* dataset, which contains over 50,000 images of 530 celebrities. We use the official aligned faces from this dataset and thus disable the automatic face-detection routines in Fawkes and LowKey.
 
-*WARNING* For the `--no-align` option to work properly (Fawkes won't try to detect faces), we need to patch `protection.py`
+## Perturb images with Fawkes v1.0
+
+Download Fawkesv1.0 here: https://github.com/Shawn-Shan/fawkes
+
+*WARNING:* For the `--no-align` option to work properly, we need to patch `fawkes/protection.py`
 so that the option `eval_local=True` is passed to the `Faces` class.
 
 Then, we generate protected pictures for one FaceScrub user as follows:
@@ -22,7 +32,7 @@ Original Picture | Picture attacked with Fawkes
 -----------------|-----------------
 <img src="adam.jpg" alt="original picture" width="224"/> | <img src="adam_fawkes.png" alt="attacked picture" width="224"/>
 
-## Generate cloaks with LowKey
+## Perturb images with LowKey
 
 Download LowKey here: https://openreview.net/forum?id=hJmtwocEqzc
 
@@ -39,17 +49,19 @@ Original Picture | Picture attacked with LowKey
 -----------------|-----------------
 <img src="adam.jpg" alt="original picture" width="224"/> | <img src="adam_lowkey.png" alt="attacked picture" width="224"/>
 
-## Evaluation
+## Evaluation setup
 
 The evaluation code assumes that Fawkesv0.3 is on your PYTHONPATH.
-Download it from here: https://github.com/Shawn-Shan/fawkes/releases/tag/v0.3
+Download Fawkesv0.3 here: https://github.com/Shawn-Shan/fawkes/releases/tag/v0.3
 
 We assume you have:
 - A directory with the original FaceScrub pictures: `facescrub/download/`
 - A directory with users protected by Fawkes: `facescrub_fawkes_attack/download/`
 - A directory with users protected by LowKey: `facescrub_lowkey_attack/download/`
 
-### Baseline with NN classifier
+## Baseline evaluation with NN and linear classifiers
+
+### NN classifier
 Train a nearest neighbor classifier on top of the Fawkesv0.3 feature extractor, with one attacking user.
 
 To evaluate Fawkes' attack:
@@ -68,6 +80,11 @@ Fawkes (baseline NN) | Lowkey (baseline NN)
 ---------------------|---------------------
 ```Protection rate: 0.97```|```Protection rate: 0.94```
 
+### Linear classifier
+You can set `--classifier linear` to instead train a linear classifier instead of a nearest neighbor one.
+
+## Attack evaluation with NN and linear classifiers 
+
 ### Oblivious NN classifier
 We can repeat the experiment using the feature extractor from Fawkes v1.0, MagFace or CLIP.
 
@@ -75,11 +92,11 @@ We can repeat the experiment using the feature extractor from Fawkes v1.0, MagFa
     - Put Fawkes v1.0 (and not Fawkes v0.3) on your PYTHONPATH
 
 - For MagFace:
-    - Download MagFace: https://github.com/IrvingMeng/MagFace/
+    - Download MagFace here: https://github.com/IrvingMeng/MagFace/
     - Download the pre-trained `iResNet100` model
 
 - For CLIP:
-    - Download CLIP: https://github.com/openai/CLIP
+    - Download CLIP here: https://github.com/openai/CLIP
 
 
 Fawkes attack & Fawkes v1.0 extractor:
@@ -119,9 +136,9 @@ Fawkes (adaptive NN) | Lowkey (adaptive NN)
 ```Protection rate: 0.03```|```Protection rate: 0.03```
 
 ### Linear classifiers
-In all the above examples, you can set `--classifier linear` to instead train a linear classifier instead of a nearest neighbor one.
+You can set `--classifier linear` to instead train a linear classifier instead of a nearest neighbor one.
 
-### Baseline end-to-end
+## Baseline evaluation with end-to-end training
 Train a classifier on top of the Fawkesv03 feature extractor end-to-end, with one attacking user.
 
 To evaluate Fawkes' attack:
@@ -139,6 +156,8 @@ Results:
 Fawkes (baseline E2E) | Lowkey (baseline E2E)
 ----------------------|---------------------
 ```Protection rate: 0.88```|```Protection rate: 0.97```
+
+## Attack evaluation with end-to-end training
 
 ### Adaptive end-to-end
 To evaluate robust end-to-end training, we add attacked pictures into the model's training set.
