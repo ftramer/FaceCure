@@ -2,18 +2,17 @@
 
 **Oblivious and adaptive "defenses" against poisoning attacks on facial recognition systems.**
 
-We consider three common facial recognition approaches: 
-- *NN:* 1-Nearest Neighbor on top of a feature extractor.
-- *Linear:* Linear fine-tuning on top of a frozen feature extractor for 10 epochs.
-- *End-to-end:* End-to-end fine-tuning of the feature extractor and linear classifier for 10 epochs.
+This repository contains code to evaluate two poisoning attacks against large-scale facial recognition systems, [Fawkes](https://sandlab.cs.uchicago.edu/fawkes/) and [LowKey](https://lowkey.umiacs.umd.edu/).<br>
 
-We evaluate the following defenses against the Fawkes and Lowkey attacks on facial recognition:
-- *Oblivious:* A model trainer waits for a new model to nullify the protection of previously collected pictures.
-- *Adaptive:* A model trainer trains a robust model that resists the perturbations of collected pictures.
+We evaluate the following defense strategies against the Fawkes and Lowkey attacks:
+- *Baseline:* A model trainer collects perturbed pictures and trains a standard facial recognition model.
+- *Oblivious:* A model trainer collects perturbed pictures, waits until a new facial recongition model is released, and uses the new model to nullify the protection of previously collected pictures.
+- *Adaptive:* A model trainer uses the same attack as users (as a black-box) to build a training dataset augmented with perturbed pictures, and trains a model that is robust to the attack.<br>
 
-We perform all of our experiments with the *FaceScrub* dataset, which contains over 50,000 images of 530 celebrities. We use the official aligned faces from this dataset and thus disable the automatic face-detection routines in Fawkes and LowKey.
+We perform all of our experiments with the [FaceScrub dataset](http://vintage.winklerbros.net/facescrub.html), which contains over 50,000 images of 530 celebrities. We use the official aligned faces from this dataset and thus disable the automatic face-detection routines in Fawkes and LowKey.
 
-## Perturb images with Fawkes v1.0
+## Attack setup
+### Perturb images with Fawkes v1.0
 
 Download Fawkesv1.0 here: https://github.com/Shawn-Shan/fawkes
 
@@ -32,7 +31,7 @@ Original Picture | Picture attacked with Fawkes
 -----------------|-----------------
 <img src="adam.jpg" alt="original picture" width="224"/> | <img src="adam_fawkes.png" alt="attacked picture" width="224"/>
 
-## Perturb images with LowKey
+### Perturb images with LowKey
 
 Download LowKey here: https://openreview.net/forum?id=hJmtwocEqzc
 
@@ -49,16 +48,27 @@ Original Picture | Picture attacked with LowKey
 -----------------|-----------------
 <img src="adam.jpg" alt="original picture" width="224"/> | <img src="adam_lowkey.png" alt="attacked picture" width="224"/>
 
-## Evaluation setup
+## Defense setup
+
+We consider three common facial recognition approaches: 
+- *NN:* 1-Nearest Neighbor on top of a feature extractor.
+- *Linear:* Linear fine-tuning on top of a frozen feature extractor.
+- *End-to-end:* End-to-end fine-tuning of the feature extractor and linear classifier.<br>
 
 The evaluation code assumes that Fawkesv0.3 is on your PYTHONPATH.
-
-Download Fawkesv0.3 here: https://github.com/Shawn-Shan/fawkes/releases/tag/v0.3
+Download Fawkesv0.3 here: https://github.com/Shawn-Shan/fawkes/releases/tag/v0.3 
+<br>
 
 We assume you have:
 - A directory with the original FaceScrub pictures: `facescrub/download/`
 - A directory with users protected by Fawkes: `facescrub_fawkes_attack/download/`
 - A directory with users protected by LowKey: `facescrub_lowkey_attack/download/`
+
+In each of the experiments below, one FaceScrub user is chosen as the attacker.
+All of the training images of that user are replaced by perturbed images.
+
+A facial recognition model is then trained on the entire training set. 
+We report the attack's *protection rate* (a.k.a. the trained model's test error when evaluated on *unperturbed* images of the attacking user).
 
 ## Baseline evaluation with NN and linear classifiers
 
@@ -81,10 +91,12 @@ Fawkes (baseline NN) | Lowkey (baseline NN)
 ---------------------|---------------------
 ```Protection rate: 0.97```|```Protection rate: 0.94```
 
+Thus, both attacks are very effective in this setting: the model only classifies <6% of the user's unperturbed images correctly.
+
 ### Linear classifier
 You can set `--classifier linear` to instead train a linear classifier instead of a nearest neighbor one.
 
-## Attack evaluation with NN and linear classifiers 
+## Defense evaluation with NN and linear classifiers 
 
 ### Oblivious NN classifier
 We can repeat the experiment using the feature extractor from Fawkes v1.0, MagFace or CLIP.
@@ -126,6 +138,10 @@ Fawkes attack & Fawkes extractor | Fawkes attack & MagFace extractor | | LowKey 
 ---------------------------------|----------------------------------|-|-----------------------------------|-------------------------------
 ```Protection rate: 1.00```|```Protection rate: 0.00```| |```Protection rate: 1.00```|```Protection rate: 0.24```
 
+The Fawkes attack completely fails against MagFace: all of the user's unprotected pictures are classified correctly.
+
+LowKey fairs a bit better: it works perfectly against MagFace, but performs poorly against CLIP, where it only protects the user for 24% of the tested pictures.
+
 ### Adaptive NN classifier
 Same as for the baseline classifier above, but you can add the option `--robust-weights cp-robust-10.ckpt` to use a robustified feature extractor.
 This feature extractor was trained using the `train_robust_features.py` script, which finetunes a feature extractor on known attack pictures.
@@ -135,6 +151,8 @@ Results:
 Fawkes (adaptive NN) | Lowkey (adaptive NN)
 ---------------------|---------------------
 ```Protection rate: 0.03```|```Protection rate: 0.03```
+
+Both attacks fail in this setting. The model achieves an error rate on unprotected pictures of just 3%.
 
 ### Linear classifiers
 You can set `--classifier linear` to instead train a linear classifier instead of a nearest neighbor one.
@@ -158,7 +176,9 @@ Fawkes (baseline E2E) | Lowkey (baseline E2E)
 ----------------------|---------------------
 ```Protection rate: 0.88```|```Protection rate: 0.97```
 
-## Attack evaluation with end-to-end training
+Both attacks are very effective in this setting: the trained model only classifies respictevly 12% and 3% of the user's unperturbed images correctly.
+
+## Defense evaluation with end-to-end training
 
 ### Adaptive end-to-end
 To evaluate robust end-to-end training, we add attacked pictures into the model's training set.
@@ -179,3 +199,6 @@ Results:
 Fawkes (adaptive E2E) | Lowkey (adaptive E2E)
 ----------------------|---------------------
 ```Protection rate: 0.03```|```Protection rate: 0.03```
+
+Again, both attacks fail against a robustified model. The model achieves an error rate on unprotected pictures of just 3%.
+
