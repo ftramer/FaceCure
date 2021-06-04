@@ -52,6 +52,7 @@ Original Picture | Picture attacked with LowKey
 ## Evaluation setup
 
 The evaluation code assumes that Fawkesv0.3 is on your PYTHONPATH.
+
 Download Fawkesv0.3 here: https://github.com/Shawn-Shan/fawkes/releases/tag/v0.3
 
 We assume you have:
