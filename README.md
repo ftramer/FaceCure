@@ -19,17 +19,17 @@ Download Fawkesv1.0 here: https://github.com/Shawn-Shan/fawkes
 *WARNING:* For the `--no-align` option to work properly, we need to patch `fawkes/protection.py`
 so that the option `eval_local=True` is passed to the `Faces` class.
 
-Then, we generate protected pictures for one FaceScrub user as follows:
+Then, we generate perturbed pictures for one FaceScrub user as follows:
 
 ```bash
 python3 fawkes/protection.py --gpu 0 -d facescrub/download/Adam_Sandler/face --batch-size 8 -m high --no-align
 ```
 
-For each picture `filename.png`, this will create an attacked picture `filename_high_cloaked.png` in the same directory.
+For each picture `filename.png`, this will create a perturbed picture `filename_high_cloaked.png` in the same directory.
 
-Original Picture | Picture attacked with Fawkes
+Original Picture | Picture perturbed with Fawkes
 -----------------|-----------------
-<img src="adam.jpg" alt="original picture" width="224"/> | <img src="adam_fawkes.png" alt="attacked picture" width="224"/>
+<img src="adam.jpg" alt="original picture" width="224"/> | <img src="adam_fawkes.png" alt="perturbed picture" width="224"/>
 
 ### Perturb images with LowKey
 
@@ -42,11 +42,11 @@ As a result, the attack can also be batched. The attack automatically resizes pi
 python3 lowkey_attack.py facescrub/download/Adam_Sandler/face
 ```
 
-For each picture `filename.png`, this will create a resized picture `filename_small.png` and an attacked picture `filename_attacked.png` in the same directory.
+For each picture `filename.png`, this will create a resized picture `filename_small.png` and a perturbed picture `filename_attacked.png` in the same directory.
 
-Original Picture | Picture attacked with LowKey
+Original Picture | Picture perturbed with LowKey
 -----------------|-----------------
-<img src="adam.jpg" alt="original picture" width="224"/> | <img src="adam_lowkey.png" alt="attacked picture" width="224"/>
+<img src="adam.jpg" alt="original picture" width="224"/> | <img src="adam_lowkey.png" alt="perturbed picture" width="224"/>
 
 ## Defense setup
 
@@ -138,7 +138,7 @@ Fawkes attack & Fawkes extractor | Fawkes attack & MagFace extractor | | LowKey 
 ---------------------------------|----------------------------------|-|-----------------------------------|-------------------------------
 ```Protection rate: 1.00```|```Protection rate: 0.00```| |```Protection rate: 1.00```|```Protection rate: 0.24```
 
-The Fawkes attack completely fails against MagFace: all of the user's unprotected pictures are classified correctly.
+The Fawkes attack completely fails against MagFace: all of the user's unperturbed pictures are classified correctly.
 
 LowKey fairs a bit better: it works perfectly against MagFace, but performs poorly against CLIP, where it only protects the user for 24% of the tested pictures.
 
@@ -152,7 +152,7 @@ Fawkes (adaptive NN) | Lowkey (adaptive NN)
 ---------------------|---------------------
 ```Protection rate: 0.03```|```Protection rate: 0.03```
 
-Both attacks fail in this setting. The model achieves an error rate on unprotected pictures of just 3%.
+Both attacks fail in this setting. The model achieves an error rate on unperturbed pictures of just 3%.
 
 ### Linear classifiers
 You can set `--classifier linear` to instead train a linear classifier instead of a nearest neighbor one.
@@ -176,13 +176,13 @@ Fawkes (baseline E2E) | Lowkey (baseline E2E)
 ----------------------|---------------------
 ```Protection rate: 0.88```|```Protection rate: 0.97```
 
-Both attacks are very effective in this setting: the trained model only classifies respictevly 12% and 3% of the user's unperturbed images correctly.
+Both attacks are very effective in this setting: the trained model only classifies respectively 12% and 3% of the user's unperturbed images correctly.
 
 ## Defense evaluation with end-to-end training
 
 ### Adaptive end-to-end
-To evaluate robust end-to-end training, we add attacked pictures into the model's training set.
-We assume here that at most half of the FaceScrub users have attacked pictures.
+To evaluate robust end-to-end training, we add perturbed pictures into the model's training set.
+We assume here that at most half of the FaceScrub users have perturbed pictures.
 
 To evaluate Fawkes' attack:
 ```bash
@@ -200,5 +200,5 @@ Fawkes (adaptive E2E) | Lowkey (adaptive E2E)
 ----------------------|---------------------
 ```Protection rate: 0.03```|```Protection rate: 0.03```
 
-Again, both attacks fail against a robustified model. The model achieves an error rate on unprotected pictures of just 3%.
+Again, both attacks fail against a robustified model. The model achieves an error rate on unperturbed pictures of just 3%.
 
